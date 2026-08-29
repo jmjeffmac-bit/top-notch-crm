@@ -1,1 +1,70 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#111827"><title>Top Notch CRM</title><link rel="stylesheet" href="styles.css?v=4"></head><body><div id="loginScreen" class="login-screen"><div class="login-card"><h1>Top Notch CRM</h1><p>Field Service • Customers • Estimates • Jobs • Invoices</p><input id="loginUser" placeholder="Username" autocomplete="off"><input id="loginPin" type="password" inputmode="numeric" placeholder="PIN" autocomplete="off"><button id="loginBtn" type="button">Sign In</button><p id="loginMsg" class="muted"></p><p class="muted">Clean test build 4</p></div></div><div id="appShell" hidden><header class="topbar"><div><h1>Top Notch CRM</h1><p id="whoami"></p></div><button id="logoutBtn" class="secondary">Sign Out</button></header><nav class="tabs"><button data-tab="dashboard" class="active">Dashboard</button><button data-tab="customers">Customers</button><button data-tab="estimates" class="owner-only">Estimates</button><button data-tab="jobs">Jobs</button><button data-tab="calendar">Calendar</button><button data-tab="invoices" class="owner-only">Invoices</button><button data-tab="pricebook" class="owner-only">Price Book</button><button data-tab="settings" class="owner-only">Settings</button></nav><main><section id="dashboard" class="tab active"><div class="stats"><div class="stat"><span>Open Jobs</span><strong id="statOpen">0</strong></div><div class="stat"><span>Scheduled</span><strong id="statScheduled">0</strong></div><div class="stat"><span>Completed</span><strong id="statCompleted">0</strong></div><div class="stat owner-only"><span>Outstanding A/R</span><strong id="statAR">$0</strong></div><div class="stat owner-only"><span>Paid Revenue</span><strong id="statRevenue">$0</strong></div></div><div class="card"><h2>Upcoming Work</h2><div id="dashJobs"></div></div></section><section id="customers" class="tab"><div class="card owner-only"><h2>Add Customer</h2><div class="grid"><input id="cName" placeholder="Customer / company name"><input id="cPhone" placeholder="Phone"><input id="cEmail" placeholder="Email"><input id="cAddress" placeholder="Primary address"><select id="cSource"><option value="">Lead source</option><option>Repeat Customer</option><option>Referral</option><option>Website</option><option>Nextdoor</option><option>Facebook</option><option>Wayfair</option><option>Commercial Account</option><option>Other</option></select><input id="cTags" placeholder="Tags"></div><textarea id="cNotes" placeholder="Notes"></textarea><button id="saveCustomer">Save Customer</button></div><div class="card"><h2>Customers</h2><div id="customerList"></div></div></section><section id="estimates" class="tab owner-only"><div class="card"><h2>Create Estimate</h2><div class="grid"><select id="eCustomer"></select><input id="eService" placeholder="Service"><input id="eAmount" type="number" step="0.01" placeholder="Amount"><select id="eStatus"><option>Draft</option><option>Sent</option><option>Approved</option><option>Declined</option></select></div><textarea id="eScope" placeholder="Scope / exclusions"></textarea><button id="saveEstimate">Save Estimate</button></div><div class="card"><h2>Estimate Pipeline</h2><div id="estimateList"></div></div></section><section id="jobs" class="tab"><div class="card owner-only"><h2>Create / Assign Job</h2><div class="grid"><select id="jCustomer"></select><input id="jService" placeholder="Service / task"><input id="jAddress" placeholder="Job address"><input id="jPrice" type="number" step="0.01" placeholder="Job price"><input id="jScheduled" type="datetime-local"><select id="jAssigned"><option value="Owner">Jeff</option><option value="Tech1">Stan</option><option value="Tech2">Louis</option></select></div><textarea id="jNotes" placeholder="Scope / instructions"></textarea><button id="saveJob">Save & Assign</button></div><div class="card"><h2>Job Workflow</h2><div id="jobList"></div></div></section><section id="calendar" class="tab"><div class="card"><h2>Schedule</h2><input id="calendarDate" type="date"><div id="calendarList"></div></div></section><section id="invoices" class="tab owner-only"><div class="card"><h2>Create Invoice</h2><div class="grid"><select id="iCustomer"></select><select id="iJob"><option value="">Related job</option></select><input id="iAmount" type="number" step="0.01" placeholder="Amount"><select id="iStatus"><option>Draft</option><option>Sent</option><option>Paid</option><option>Past Due</option></select></div><button id="saveInvoice">Save Invoice</button></div><div class="card"><h2>Invoices / A/R</h2><div id="invoiceList"></div></div></section><section id="pricebook" class="tab owner-only"><div class="card"><h2>Flat-Rate Price Book</h2><p>Minimum service call: $125.</p><div id="priceList"></div></div></section><section id="settings" class="tab owner-only"><div class="card"><h2>Team</h2><p><strong>Owner:</strong> Jeff</p><p><strong>Technician:</strong> Stan</p><p><strong>Technician:</strong> Louis</p><p class="muted">Clean test build only. Do not enter real customer information until the secure shared backend is connected.</p></div><div class="card"><h2>Backup</h2><button id="exportBtn">Export CRM Backup</button></div></section></main></div><script src="app-v4.js?v=4"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Top Notch CRM</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f4f6;color:#111827}.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}.card{width:min(460px,100%);background:#fff;border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.12)}h1{margin:0 0 8px;font-size:28px}p{line-height:1.45}.muted{color:#6b7280}.build{font-size:13px;margin-top:18px}label{display:block;font-weight:700;margin:14px 0 6px}input{width:100%;padding:14px;border:1px solid #cbd5e1;border-radius:10px;font-size:18px}button{width:100%;margin-top:18px;padding:14px;border:0;border-radius:10px;background:#111827;color:#fff;font-size:18px;font-weight:700}.error{color:#b91c1c;font-weight:700;min-height:24px}.success{display:none;min-height:100vh;padding:20px;background:#f3f4f6}.dashboard{max-width:900px;margin:0 auto}.top{background:#111827;color:#fff;border-radius:16px;padding:22px}.ok{background:#ecfdf5;border:1px solid #10b981;border-radius:14px;padding:18px;margin-top:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:16px}.tile{background:white;border-radius:12px;padding:18px}.small{font-size:14px;color:#6b7280}.logout{max-width:160px;background:#374151}
+</style>
+</head>
+<body>
+<div id="loginView" class="wrap">
+  <div class="card">
+    <h1>Top Notch CRM</h1>
+    <p class="muted">Owner & Technician Access</p>
+    <label for="user">Username</label>
+    <input id="user" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Jeff">
+    <label for="pin">PIN</label>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="1234">
+    <button id="signIn" type="button">Sign In</button>
+    <p id="msg" class="error"></p>
+    <p class="muted build">SELF-CONTAINED TEST BUILD 5</p>
+  </div>
+</div>
+<div id="appView" class="success">
+  <div class="dashboard">
+    <div class="top">
+      <h1>Top Notch CRM</h1>
+      <p id="who">Jeff • Owner / Administrator</p>
+    </div>
+    <div class="ok"><strong>LOGIN SUCCESSFUL</strong><p>The CRM dashboard opened correctly. This confirms the phone can run the app's login code.</p></div>
+    <div class="grid">
+      <div class="tile"><strong>Open Jobs</strong><p>0</p><span class="small">Test dashboard</span></div>
+      <div class="tile"><strong>Scheduled</strong><p>0</p><span class="small">Test dashboard</span></div>
+      <div class="tile"><strong>Customers</strong><p>0</p><span class="small">Do not add real data yet</span></div>
+    </div>
+    <button id="logout" class="logout" type="button">Sign Out</button>
+  </div>
+</div>
+<script>
+(function(){
+  var user=document.getElementById('user');
+  var pin=document.getElementById('pin');
+  var btn=document.getElementById('signIn');
+  var msg=document.getElementById('msg');
+  var login=document.getElementById('loginView');
+  var app=document.getElementById('appView');
+  var who=document.getElementById('who');
+  function doLogin(){
+    var u=(user.value||'').trim().toLowerCase();
+    var p=(pin.value||'').trim();
+    var roles={jeff:'Owner / Administrator',stan:'Technician',louis:'Technician'};
+    if(!roles[u] || p!=='1234'){
+      msg.textContent='Incorrect name or PIN.';
+      return;
+    }
+    var display=u.charAt(0).toUpperCase()+u.slice(1);
+    who.textContent=display+' • '+roles[u];
+    login.style.display='none';
+    app.style.display='block';
+    msg.textContent='';
+  }
+  btn.onclick=doLogin;
+  pin.onkeydown=function(e){if(e.key==='Enter'){doLogin();}};
+  document.getElementById('logout').onclick=function(){app.style.display='none';login.style.display='flex';pin.value='';msg.textContent='';};
+})();
+</script>
+</body>
+</html>
