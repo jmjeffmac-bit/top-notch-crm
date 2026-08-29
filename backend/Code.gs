@@ -6,7 +6,7 @@ const CRM_SHEETS = {
   pricebook: ['id','code','service','basePrice','hours','materials','internalRate','scope','active','createdAt','updatedAt']
 };
 
-const SESSION_SECONDS = 21600; // 6 hours
+const SESSION_SECONDS = 21600;
 
 function doGet() {
   return json_({ok:true, service:'Top Notch CRM backend', status:'ready'});
@@ -34,6 +34,29 @@ function doPost(e) {
   }
 }
 
+// Run this ONE function during first-time Google setup.
+// It creates the private spreadsheet and generates NEW production PINs.
+// Only the PIN hashes are stored after this function finishes.
+function installCRM() {
+  const db = setupCRM();
+  const props = PropertiesService.getScriptProperties();
+  if (props.getProperty('USER_JEFF_PIN_HASH')) {
+    return {ok:true, message:'CRM is already installed.', spreadsheetUrl:db.spreadsheetUrl};
+  }
+  const pins = {
+    Jeff: randomPin_(),
+    Stan: randomPin_(),
+    Louis: randomPin_()
+  };
+  setInitialSecurity(pins.Jeff, pins.Stan, pins.Louis);
+  return {
+    ok:true,
+    message:'Installation complete. Save these PINs now; only their hashes remain stored.',
+    spreadsheetUrl:db.spreadsheetUrl,
+    pins:pins
+  };
+}
+
 function setupCRM() {
   const props = PropertiesService.getScriptProperties();
   let id = props.getProperty('SPREADSHEET_ID');
@@ -50,7 +73,9 @@ function setupCRM() {
 }
 
 function setInitialSecurity(ownerPin, stanPin, louisPin) {
-  if (!ownerPin || !stanPin || !louisPin) throw new Error('All three PINs are required.');
+  [ownerPin,stanPin,louisPin].forEach(function(pin){
+    if (!/^\d{6,12}$/.test(String(pin || ''))) throw new Error('Each PIN must be 6 to 12 digits.');
+  });
   const p = PropertiesService.getScriptProperties();
   p.setProperties({
     USER_JEFF_ROLE:'Owner', USER_JEFF_NAME:'Jeff', USER_JEFF_PIN_HASH:hash_(String(ownerPin)),
@@ -70,7 +95,7 @@ function login_(body) {
   if (!role || !saved || hash_(pin) !== saved) return {ok:false,error:'Incorrect name or PIN.'};
   const token = Utilities.getUuid() + Utilities.getUuid();
   CacheService.getScriptCache().put('SESSION_' + token, JSON.stringify({username,name,role}), SESSION_SECONDS);
-  return {ok:true,token,user:{name,role},expiresIn:SESSION_SECONDS};
+  return {ok:true,token,user:{name:name,role:role},expiresIn:SESSION_SECONDS};
 }
 
 function logout_(body) {
@@ -98,7 +123,7 @@ function bootstrap_(session) {
     out.estimates = [];
     out.invoices = [];
     out.pricebook = [];
-    out.jobs = readAll_('jobs').filter(j => String(j.assignedTo) === session.role);
+    out.jobs = readAll_('jobs').filter(function(j){ return String(j.assignedTo) === session.role; });
   }
   return out;
 }
@@ -120,7 +145,7 @@ function saveRecord_(table, record, session) {
   const headers = CRM_SHEETS[table];
   const now = new Date().toISOString();
   const clean = {};
-  headers.forEach(h => clean[h] = record[h] == null ? '' : record[h]);
+  headers.forEach(function(h){ clean[h] = record[h] == null ? '' : record[h]; });
   clean.id = clean.id || makeId_(table);
   clean.createdAt = clean.createdAt || now;
   clean.updatedAt = now;
@@ -142,7 +167,7 @@ function updateJobStatus_(body, session) {
 
 function getSpreadsheet_() {
   const id = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
-  if (!id) throw new Error('Run setupCRM() first.');
+  if (!id) throw new Error('Run installCRM() first.');
   return SpreadsheetApp.openById(id);
 }
 
@@ -158,13 +183,13 @@ function readAll_(table) {
   if (!sh || sh.getLastRow() < 2) return [];
   const values = sh.getDataRange().getValues();
   const headers = values.shift();
-  return values.filter(r => r.some(v => v !== '')).map(r => {
-    const o = {}; headers.forEach((h,i) => o[h] = r[i]); return o;
+  return values.filter(function(r){ return r.some(function(v){return v !== '';}); }).map(function(r){
+    const o = {}; headers.forEach(function(h,i){o[h]=r[i];}); return o;
   });
 }
 
 function findById_(table, id) {
-  return readAll_(table).find(r => String(r.id) === String(id)) || null;
+  return readAll_(table).find(function(r){return String(r.id) === String(id);}) || null;
 }
 
 function upsert_(table, record) {
@@ -173,7 +198,7 @@ function upsert_(table, record) {
   const values = sh.getDataRange().getValues();
   let row = -1;
   for (let i=1;i<values.length;i++) if (String(values[i][0]) === String(record.id)) { row = i+1; break; }
-  const data = headers.map(h => record[h] == null ? '' : record[h]);
+  const data = headers.map(function(h){return record[h] == null ? '' : record[h];});
   if (row > 0) sh.getRange(row,1,1,headers.length).setValues([data]);
   else sh.appendRow(data);
 }
@@ -183,9 +208,14 @@ function makeId_(table) {
   return prefix + '-' + Utilities.getUuid().split('-')[0].toUpperCase();
 }
 
+function randomPin_() {
+  const n = Math.floor(Math.random() * 90000000) + 10000000;
+  return String(n);
+}
+
 function hash_(value) {
   const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, value, Utilities.Charset.UTF_8);
-  return bytes.map(b => ('0' + ((b < 0 ? b + 256 : b).toString(16))).slice(-2)).join('');
+  return bytes.map(function(b){return ('0' + ((b < 0 ? b + 256 : b).toString(16))).slice(-2);}).join('');
 }
 
 function json_(obj) {
