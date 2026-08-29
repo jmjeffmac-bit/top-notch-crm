@@ -6,64 +6,44 @@
 <meta name="theme-color" content="#111827">
 <title>Top Notch CRM</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f4f6;color:#111827}.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}.card{width:min(460px,100%);background:#fff;border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.12)}h1{margin:0 0 8px;font-size:28px}p{line-height:1.45}.muted{color:#6b7280}.build{font-size:13px;margin-top:18px}label{display:block;font-weight:700;margin:14px 0 6px}input{width:100%;padding:14px;border:1px solid #cbd5e1;border-radius:10px;font-size:18px}button{width:100%;margin-top:18px;padding:14px;border:0;border-radius:10px;background:#111827;color:#fff;font-size:18px;font-weight:700}.error{color:#b91c1c;font-weight:700;min-height:24px}.success{display:none;min-height:100vh;padding:20px;background:#f3f4f6}.dashboard{max-width:900px;margin:0 auto}.top{background:#111827;color:#fff;border-radius:16px;padding:22px}.ok{background:#ecfdf5;border:1px solid #10b981;border-radius:14px;padding:18px;margin-top:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:16px}.tile{background:white;border-radius:12px;padding:18px}.small{font-size:14px;color:#6b7280}.logout{max-width:160px;background:#374151}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f4f6;color:#111827}.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}.card{width:min(460px,100%);background:#fff;border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.12)}h1{margin:0 0 8px;font-size:28px}p{line-height:1.45}.muted{color:#6b7280}.build{font-size:13px;margin-top:18px}button{width:100%;margin-top:18px;padding:16px;border:0;border-radius:10px;background:#111827;color:#fff;font-size:18px;font-weight:700}.success{display:none;min-height:100vh;padding:20px;background:#f3f4f6}.dashboard{max-width:900px;margin:0 auto}.top{background:#111827;color:#fff;border-radius:16px;padding:22px}.ok{background:#ecfdf5;border:1px solid #10b981;border-radius:14px;padding:18px;margin-top:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:16px}.tile{background:#fff;border-radius:12px;padding:18px}.small{font-size:14px;color:#6b7280}.logout{max-width:160px;background:#374151}
 </style>
 </head>
 <body>
-<div id="loginView" class="wrap">
+<div id="testView" class="wrap">
   <div class="card">
     <h1>Top Notch CRM</h1>
-    <p class="muted">Owner & Technician Access</p>
-    <label for="user">Username</label>
-    <input id="user" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Jeff">
-    <label for="pin">PIN</label>
-    <input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="1234">
-    <button id="signIn" type="button">Sign In</button>
-    <p id="msg" class="error"></p>
-    <p class="muted build">SELF-CONTAINED TEST BUILD 5</p>
+    <p class="muted">Owner Access Diagnostic</p>
+    <p>No username or PIN is needed for this test.</p>
+    <button id="ownerTest" type="button">Enter Owner Test</button>
+    <p id="status" class="muted">Tap the button once.</p>
+    <p class="muted build">ONE-TAP TEST BUILD 6</p>
   </div>
 </div>
 <div id="appView" class="success">
   <div class="dashboard">
-    <div class="top">
-      <h1>Top Notch CRM</h1>
-      <p id="who">Jeff • Owner / Administrator</p>
-    </div>
-    <div class="ok"><strong>LOGIN SUCCESSFUL</strong><p>The CRM dashboard opened correctly. This confirms the phone can run the app's login code.</p></div>
-    <div class="grid">
-      <div class="tile"><strong>Open Jobs</strong><p>0</p><span class="small">Test dashboard</span></div>
-      <div class="tile"><strong>Scheduled</strong><p>0</p><span class="small">Test dashboard</span></div>
-      <div class="tile"><strong>Customers</strong><p>0</p><span class="small">Do not add real data yet</span></div>
-    </div>
-    <button id="logout" class="logout" type="button">Sign Out</button>
+    <div class="top"><h1>Top Notch CRM</h1><p>Jeff • Owner / Administrator</p></div>
+    <div class="ok"><strong>OWNER TEST SUCCESSFUL</strong><p>The page successfully switched into the CRM dashboard. This proves the phone can run the app interaction code; the previous failure was isolated to the credential-input path.</p></div>
+    <div class="grid"><div class="tile"><strong>Open Jobs</strong><p>0</p><span class="small">Diagnostic only</span></div><div class="tile"><strong>Scheduled</strong><p>0</p><span class="small">Diagnostic only</span></div><div class="tile"><strong>Customers</strong><p>0</p><span class="small">Do not enter real data</span></div></div>
+    <button id="backBtn" class="logout" type="button">Back</button>
   </div>
 </div>
 <script>
 (function(){
-  var user=document.getElementById('user');
-  var pin=document.getElementById('pin');
-  var btn=document.getElementById('signIn');
-  var msg=document.getElementById('msg');
-  var login=document.getElementById('loginView');
+  var test=document.getElementById('testView');
   var app=document.getElementById('appView');
-  var who=document.getElementById('who');
-  function doLogin(){
-    var u=(user.value||'').trim().toLowerCase();
-    var p=(pin.value||'').trim();
-    var roles={jeff:'Owner / Administrator',stan:'Technician',louis:'Technician'};
-    if(!roles[u] || p!=='1234'){
-      msg.textContent='Incorrect name or PIN.';
-      return;
-    }
-    var display=u.charAt(0).toUpperCase()+u.slice(1);
-    who.textContent=display+' • '+roles[u];
-    login.style.display='none';
+  var btn=document.getElementById('ownerTest');
+  var status=document.getElementById('status');
+  btn.addEventListener('click',function(){
+    status.textContent='Button detected. Opening owner dashboard…';
+    test.style.display='none';
     app.style.display='block';
-    msg.textContent='';
-  }
-  btn.onclick=doLogin;
-  pin.onkeydown=function(e){if(e.key==='Enter'){doLogin();}};
-  document.getElementById('logout').onclick=function(){app.style.display='none';login.style.display='flex';pin.value='';msg.textContent='';};
+  });
+  document.getElementById('backBtn').addEventListener('click',function(){
+    app.style.display='none';
+    test.style.display='flex';
+    status.textContent='Tap the button once.';
+  });
 })();
 </script>
 </body>
